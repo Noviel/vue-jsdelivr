@@ -1,5 +1,15 @@
 <template>
-  <v-data-table @click:row="handleClick" :headers="headers" :items="items" :items-per-page="10"></v-data-table>
+  <v-data-table
+    fixed-header
+    @click:row="handleClick"
+    :headers="headers"
+    :items="items"
+    :items-per-page="10"
+    :footer-props="{
+      itemsPerPageText: 'Page size',
+    }"
+  >
+  </v-data-table>
 </template>
 
 <script>
@@ -13,7 +23,7 @@ export default {
           sortable: false,
           value: 'version',
         },
-        { text: 'CDN Link', value: 'link' },
+        { text: 'URL', value: 'link' },
       ],
     };
   },
@@ -25,6 +35,9 @@ export default {
   methods: {
     handleClick({ version }) {
       this.$store.commit('setSelected', version);
+      this.$store.dispatch({
+        type: 'getDetails',
+      });
     },
   },
 };

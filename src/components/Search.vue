@@ -1,13 +1,14 @@
 <template>
-  <v-col cols="12">
-    <v-row justify="center" align="center">
-      <v-text-field class="mr-4" v-model="query" placeholder="Search for a package..." label="Search"></v-text-field>
-      <v-btn @click="doSearch" color="primary">Search</v-btn>
-    </v-row>
-    <v-row>
-      <v-card elevation="2" class="pa-5">Versions found: {{ packagesCount }}</v-card>
-    </v-row>
-  </v-col>
+  <div class="d-inline-flex align-center">
+    <v-text-field
+      @keyup.enter="doSearch"
+      class="mr-4 mt-3"
+      v-model="query"
+      placeholder="Search for a package..."
+      aria-label="Search for a package"
+    ></v-text-field>
+    <v-btn @click="doSearch" color="primary">Search</v-btn>
+  </div>
 </template>
 
 <script>

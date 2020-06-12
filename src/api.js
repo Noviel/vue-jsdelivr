@@ -16,10 +16,16 @@ export async function getPackageByName(name, pagination) {
       pagination && typeof pagination.limit !== 'undefined' && typeof pagination.page !== 'undefined'
         ? `?limit=${pagination.limit}&page=${pagination.page}`
         : '';
-    const response = await axios.get(`/package/npm/${name}${query}`, {
-      method: 'GET',
-    });
-    console.log(response.data);
+    const response = await axios.get(`/package/npm/${name}${query}`);
+    return { data: response.data };
+  } catch (e) {
+    return e.response.data;
+  }
+}
+
+export async function getPackageDetails(name, version, structure = 'flat') {
+  try {
+    const response = await axios.get(`/package/npm/${name}@${version}/${structure}`);
     return { data: response.data };
   } catch (e) {
     return e.response.data;

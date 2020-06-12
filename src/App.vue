@@ -1,15 +1,15 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
-        jsDelivr
-      </div>
+    <v-app-bar app color="secondary" fixed>
+      <span>jsDelivr</span>
+      <v-spacer></v-spacer>
+      <Search />
     </v-app-bar>
 
     <v-main>
       <v-container>
-        <Search />
-        <VersionsTable />
+        <PackagesTable />
+        <Footer />
       </v-container>
     </v-main>
     <PackageDetails />
@@ -18,16 +18,18 @@
 
 <script>
 import Search from './components/Search';
-import VersionsTable from './components/VersionsTable';
+import PackagesTable from './components/PackagesTable';
 import PackageDetails from './components/PackageDetails';
+import Footer from './components/Footer';
 
 export default {
   name: 'App',
 
   components: {
     Search,
-    VersionsTable,
+    PackagesTable,
     PackageDetails,
+    Footer,
   },
 
   data: () => ({

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import { getPackageByName } from '../api';
+import { getPackageByName, getPackageDetails } from '../api';
 import { getCDNUrl } from '../common';
 
 Vue.use(Vuex);
@@ -11,6 +11,7 @@ export default new Vuex.Store({
     query: '',
     packages: [],
     selected: undefined,
+    details: {},
   },
   mutations: {
     setQuery(state, query) {
@@ -25,6 +26,9 @@ export default new Vuex.Store({
         link: getCDNUrl(state.query, p),
       }));
     },
+    setDetails(state, { details }) {
+      state.details = details;
+    },
     notFound(state) {
       state.packages = [];
     },
@@ -32,8 +36,6 @@ export default new Vuex.Store({
   actions: {
     async doSearch({ commit, state }) {
       const result = await getPackageByName(state.query);
-
-      console.log(result);
 
       if (result.data) {
         commit({
@@ -43,6 +45,16 @@ export default new Vuex.Store({
       } else if (result.status === 404) {
         commit({
           type: 'notFound',
+        });
+      }
+    },
+    async getDetails({ commit, state }) {
+      const result = await getPackageDetails(state.query, state.selected);
+
+      if (result.data) {
+        commit({
+          type: 'setDetails',
+          details: result.data,
         });
       }
     },
