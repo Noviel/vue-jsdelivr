@@ -2,13 +2,14 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import { getPackageVersions, getPackageFiles } from '../api';
-import { getCDNUrl } from '../common';
+import { getCDNUrl, parsePackageName } from '../common';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     packageName: '',
+    isExactPackageName: false,
     packageVersions: [],
     packageVersionsFetchState: 'Initial',
     selectedVersion: undefined,
@@ -18,6 +19,9 @@ export default new Vuex.Store({
   mutations: {
     setPackage(state, packageName) {
       state.packageName = packageName;
+    },
+    setIsExactPackageName(state, isExact) {
+      state.isExactPackageName = isExact;
     },
 
     setSelectedVersion(state, version) {
@@ -30,7 +34,7 @@ export default new Vuex.Store({
     setPackageVersions(state, { versions }) {
       state.packageVersions = versions.map(version => ({
         version,
-        link: getCDNUrl(state.packageName, version),
+        link: getCDNUrl(parsePackageName(state.packageName).name, version),
       }));
     },
     clearPackageVersions(state) {
@@ -61,14 +65,25 @@ export default new Vuex.Store({
       const { data, status } = await getPackageVersions(state.packageName);
 
       if (data) {
-        commit({
-          type: 'setPackageVersions',
-          versions: data.versions,
-        });
+        const { _, version } = parsePackageName(state.packageName);
         commit({
           type: 'setPackageVersionsFetchState',
           fetchState: 'Success',
         });
+
+        if (version) {
+          commit('setIsExactPackageName', true);
+          commit({
+            type: 'setPackageVersions',
+            versions: [version],
+          });
+        } else {
+          commit('setIsExactPackageName', false);
+          commit({
+            type: 'setPackageVersions',
+            versions: data.versions,
+          });
+        }
       } else if (status !== 200) {
         commit({
           type: 'clearPackageVersions',
@@ -85,7 +100,7 @@ export default new Vuex.Store({
         fetchState: 'Loading',
       });
 
-      const { data } = await getPackageFiles(state.packageName, state.selectedVersion);
+      const { data } = await getPackageFiles(parsePackageName(state.packageName).name, state.selectedVersion);
 
       if (data) {
         commit({
@@ -107,5 +122,4 @@ export default new Vuex.Store({
       }
     },
   },
-  modules: {},
 });

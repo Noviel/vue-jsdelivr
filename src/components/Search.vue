@@ -1,7 +1,7 @@
 <template>
   <div class="d-inline-flex align-center">
     <v-text-field
-      @keyup.enter="search"
+      @keyup.enter="safeSearch"
       class="mr-4 mt-3"
       v-model="packageName"
       placeholder="Enter package name"
@@ -20,7 +20,15 @@
 import { mapActions, mapState } from 'vuex';
 
 export default {
-  methods: mapActions(['search']),
+  methods: {
+    ...mapActions(['search']),
+    safeSearch() {
+      if (this.packageVersionsFetchState === 'Loading' || this.packageName.length === 0) {
+        return;
+      }
+      this.search();
+    },
+  },
   computed: {
     ...mapState(['packageVersionsFetchState']),
     packageName: {

@@ -2,7 +2,7 @@
   <v-row justify="center">
     <v-dialog scrollable max-width="500px" v-model="dialog" v-on:click:outside="closeDialog">
       <v-card>
-        <v-card-title class="headline lighten-2" primary-title> {{ packageName }}@{{ selectedVersion }} </v-card-title>
+        <v-card-title class="headline lighten-2" primary-title> {{ displayPackageName }} </v-card-title>
 
         <v-divider></v-divider>
 
@@ -46,6 +46,9 @@ export default {
   },
   computed: {
     ...mapState(['selectedVersion', 'packageName', 'selectedVersionDetails', 'selectedVersionDetailsFetchState']),
+    displayPackageName() {
+      return this.$store.state.isExactPackageName ? this.packageName : `${this.packageName}@${this.selectedVersion}`;
+    },
     dialog: {
       get() {
         return typeof this.$store.state.selectedVersion !== 'undefined';
