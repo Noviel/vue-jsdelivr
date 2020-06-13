@@ -3,11 +3,13 @@
     fixed-header
     @click:row="handleClick"
     :headers="headers"
-    :items="packages"
+    :items="packageVersions"
     :items-per-page="10"
     :footer-props="{
       itemsPerPageText: 'Page size',
     }"
+    :loading="packageVersionsFetchState === 'Loading'"
+    loading-text="Loading..."
   >
     <template slot="no-data">
       <div class="font-weight-medium text-h6">
@@ -34,10 +36,10 @@ export default {
       ],
     };
   },
-  computed: mapState(['query', 'packages']),
+  computed: mapState(['packageName', 'packageVersions', 'packageVersionsFetchState']),
   methods: {
     handleClick({ version }) {
-      this.$store.commit('setSelected', version);
+      this.$store.commit('setSelectedVersion', version);
       this.$store.dispatch({
         type: 'getDetails',
       });

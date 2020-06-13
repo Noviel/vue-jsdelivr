@@ -2,18 +2,22 @@
   <v-row justify="center">
     <v-dialog scrollable max-width="500px" v-model="dialog" v-on:click:outside="closeDialog">
       <v-card>
-        <v-card-title class="headline lighten-2" primary-title> {{ query }}@{{ selected }} </v-card-title>
+        <v-card-title class="headline lighten-2" primary-title> {{ packageName }}@{{ selectedVersion }} </v-card-title>
 
         <v-divider></v-divider>
 
         <v-card-text class="pt-4" max-height="300">
-          <div class="mb-2">
-            Default entry: <code class="pa-1 file">{{ details.default }}</code>
-          </div>
+          <div v-if="selectedVersionDetailsFetchState === 'Loading'">Loading...</div>
+          <div v-else-if="selectedVersionDetailsFetchState === 'Failed'">Ooops, something went wrong...</div>
+          <div v-else>
+            <div class="mb-2">
+              Default entry: <code class="pa-1 file">{{ selectedVersionDetails.default }}</code>
+            </div>
 
-          <div>Files:</div>
-          <div v-for="f in details.files" v-bind:key="f.name" class="pa-1">
-            <code class="pa-1 file">{{ f.name }}</code>
+            <div>Files:</div>
+            <div v-for="f in selectedVersionDetails.files" v-bind:key="f.name" class="pa-1">
+              <code class="pa-1 file">{{ f.name }}</code>
+            </div>
           </div>
         </v-card-text>
 
@@ -34,18 +38,17 @@
 import { mapState } from 'vuex';
 
 export default {
-  data: () => ({}),
   methods: {
     closeDialog() {
-      this.$store.commit('setSelected', undefined);
-      this.$store.commit('setDetails', { details: {} });
+      this.$store.commit('clearSelectedVersion');
+      this.$store.commit('clearSelectedVersionDetails');
     },
   },
   computed: {
-    ...mapState(['selected', 'query', 'details']),
+    ...mapState(['selectedVersion', 'packageName', 'selectedVersionDetails', 'selectedVersionDetailsFetchState']),
     dialog: {
       get() {
-        return typeof this.$store.state.selected !== 'undefined';
+        return typeof this.$store.state.selectedVersion !== 'undefined';
       },
       set(value) {
         this.$store.commit('setSelected', value === false ? 'undefined' : value);

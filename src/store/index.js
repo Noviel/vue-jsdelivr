@@ -1,68 +1,111 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import { getPackageByName, getPackageDetails } from '../api';
+import { getPackageVersions, getPackageFiles } from '../api';
 import { getCDNUrl } from '../common';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    query: '',
-    packages: [],
-    selected: undefined,
-    details: {},
+    packageName: '',
+    packageVersions: [],
+    packageVersionsFetchState: 'Initial',
+    selectedVersion: undefined,
+    selectedVersionDetails: {},
+    selectedVersionDetailsFetchState: 'Initial',
   },
   mutations: {
-    setQuery(state, query) {
-      state.query = query;
+    setPackage(state, packageName) {
+      state.packageName = packageName;
     },
-    setSelected(state, version) {
-      state.selected = version;
+
+    setSelectedVersion(state, version) {
+      state.selectedVersion = version;
     },
-    setPackages(state, { packages }) {
-      state.packages = packages.map(p => ({
-        version: p,
-        link: getCDNUrl(state.query, p),
+    clearSelectedVersion(state) {
+      state.selectedVersion = undefined;
+    },
+
+    setPackageVersions(state, { versions }) {
+      state.packageVersions = versions.map(version => ({
+        version,
+        link: getCDNUrl(state.packageName, version),
       }));
     },
-    setDetails(state, { details }) {
-      state.details = details;
+    clearPackageVersions(state) {
+      state.packageVersions = [];
     },
-    notFound(state) {
-      state.packages = [];
+
+    setPackageVersionsFetchState(state, { fetchState }) {
+      state.packageVersionsFetchState = fetchState;
+    },
+
+    setSelectedVersionDetails(state, { details }) {
+      state.selectedVersionDetails = details;
+    },
+    clearSelectedVersionDetails(state) {
+      state.selectedVersionDetails = {};
+    },
+
+    setSelectedVersionDetailsFetchState(state, { fetchState }) {
+      state.selectedVersionDetailsFetchState = fetchState;
     },
   },
   actions: {
-    async doSearch({ commit, state }) {
-      const result = await getPackageByName(state.query);
+    async search({ commit, state }) {
+      commit({
+        type: 'setPackageVersionsFetchState',
+        fetchState: 'Loading',
+      });
+      const { data, status } = await getPackageVersions(state.packageName);
 
-      if (result.data) {
+      if (data) {
         commit({
-          type: 'setPackages',
-          packages: result.data.versions,
+          type: 'setPackageVersions',
+          versions: data.versions,
         });
-      } else if (result.status === 404) {
         commit({
-          type: 'notFound',
+          type: 'setPackageVersionsFetchState',
+          fetchState: 'Success',
+        });
+      } else if (status !== 200) {
+        commit({
+          type: 'clearPackageVersions',
+        });
+        commit({
+          type: 'setPackageVersionsFetchState',
+          fetchState: 'Failed',
         });
       }
     },
     async getDetails({ commit, state }) {
-      const result = await getPackageDetails(state.query, state.selected);
+      commit({
+        type: 'setSelectedVersionDetailsFetchState',
+        fetchState: 'Loading',
+      });
 
-      if (result.data) {
+      const { data } = await getPackageFiles(state.packageName, state.selectedVersion);
+
+      if (data) {
         commit({
-          type: 'setDetails',
-          details: result.data,
+          type: 'setSelectedVersionDetails',
+          details: data,
+        });
+        commit({
+          type: 'setSelectedVersionDetailsFetchState',
+          fetchState: 'Success',
+        });
+      } else {
+        commit({
+          type: 'clearSelectedVersionDetails',
+        });
+        commit({
+          type: 'setSelectedVersionDetailsFetchState',
+          fetchState: 'Failed',
         });
       }
     },
   },
   modules: {},
-  getters: {
-    packagesCount: state => {
-      return state.packages.length;
-    },
-  },
 });
