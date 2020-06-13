@@ -13,7 +13,12 @@
   >
     <template slot="no-data">
       <div class="font-weight-medium text-h6">
-        No packages were found
+        <span v-if="packageVersionsFetchState === 'Initial'">
+          Enter package name in the search field to display versions list
+        </span>
+        <span v-else>
+          No packages were found
+        </span>
       </div>
     </template>
   </v-data-table>
