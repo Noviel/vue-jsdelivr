@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import { getPackageVersions, getPackageFiles } from '../api';
+import { getPackageVersions, getPackageFiles, getPackageUsageStats } from '../api';
 import { getCDNUrl, parsePackageName } from '../common';
 
 Vue.use(Vuex);
@@ -100,12 +100,17 @@ export default new Vuex.Store({
         fetchState: 'Loading',
       });
 
-      const { data } = await getPackageFiles(parsePackageName(state.packageName).name, state.selectedVersion);
+      const packageName = parsePackageName(state.packageName).name;
 
-      if (data) {
+      const [{ data: filesData }, { data: statsData }] = await Promise.all([
+        getPackageFiles(packageName, state.selectedVersion),
+        getPackageUsageStats(packageName, state.selectedVersion),
+      ]);
+
+      if (filesData && statsData) {
         commit({
           type: 'setSelectedVersionDetails',
-          details: data,
+          details: { ...filesData, usage: statsData.total },
         });
         commit({
           type: 'setSelectedVersionDetailsFetchState',

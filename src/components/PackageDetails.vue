@@ -10,13 +10,22 @@
           <div v-if="selectedVersionDetailsFetchState === 'Loading'">Loading...</div>
           <div v-else-if="selectedVersionDetailsFetchState === 'Failed'">Ooops, something went wrong...</div>
           <div v-else>
-            <div class="mb-2">
-              Default entry: <code class="pa-1 file">{{ selectedVersionDetails.default }}</code>
+            <div class="mb-4">
+              <div class="text-h6">Total usage</div>
+              <div>{{ selectedVersionDetails.usage }}</div>
             </div>
-
-            <div>Files:</div>
-            <div v-for="f in selectedVersionDetails.files" v-bind:key="f.name" class="pa-1">
-              <code class="pa-1 file">{{ f.name }}</code>
+            <div>
+              <div class="mb-2 text-h6">Files</div>
+              <div class="mb-2">
+                <div class="mb-2">Default entry</div>
+                <div>
+                  <code class="pa-1 file">{{ selectedVersionDetails.default }}</code>
+                </div>
+              </div>
+              <div class="mb-2">All files</div>
+              <div v-for="f in selectedVersionDetails.files" v-bind:key="f.name" class="pa-1">
+                <code class="pa-1 file">{{ f.name }}</code>
+              </div>
             </div>
           </div>
         </v-card-text>

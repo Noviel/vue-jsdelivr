@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = 'https://data.jsdelivr.com/v1';
+axios.defaults.baseURL = 'https://data.jsdelivr.com/v1/package/npm';
 axios.defaults.headers = {
   'Content-Type': 'application/json',
 };
@@ -17,7 +17,7 @@ export async function getPackageVersions(name, pagination) {
       pagination && typeof pagination.limit !== 'undefined' && typeof pagination.page !== 'undefined'
         ? `?limit=${pagination.limit}&page=${pagination.page}`
         : '';
-    const { data } = await axios.get(`/package/npm/${name}${query}`);
+    const { data } = await axios.get(`/${name}${query}`);
     return { data };
   } catch (e) {
     return e.response.data;
@@ -26,7 +26,16 @@ export async function getPackageVersions(name, pagination) {
 
 export async function getPackageFiles(name, version, structure = 'flat') {
   try {
-    const { data } = await axios.get(`/package/npm/${name}@${version}/${structure}`);
+    const { data } = await axios.get(`/${name}@${version}/${structure}`);
+    return { data };
+  } catch (e) {
+    return e.response.data;
+  }
+}
+
+export async function getPackageUsageStats(name, version) {
+  try {
+    const { data } = await axios.get(`/${name}@${version}/stats`);
     return { data };
   } catch (e) {
     return e.response.data;
